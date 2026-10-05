@@ -13,11 +13,9 @@
  const emptyMessage = document.getElementById("emptyMessage");
  
  let tasks = [];
- 
  // Display all tasks
  function displayTasks() {
      taskList.innerHTML = "";
- 
      tasks.forEach((task, index) => {
          const li = document.createElement("li");
          li.className = "task";
@@ -52,8 +50,6 @@
      emptyMessage.style.display =
          tasks.length === 0 ? "block" : "none";
  }
- 
- 
  // ADD TASK
  // ADD TASK
 async function addTask() {
