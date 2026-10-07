@@ -1,60 +1,87 @@
 const { createClient } = supabase;
+
 const supabaseURL = 'https://fyitjrqdacpgpoehmrfn.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5aXRqcnFkYWNwZ3BvZWhtcmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNDUyMTAsImV4cCI6MjEwNTcyMTIxMH0.EHa1IEnDniSB1y_bDpZq2ycI64pqukv8Y_DpGz-aLVg';
+
+const supabaseKey = 'YOUR_SUPABASE_KEY';
+
 const supabaseClient = createClient(supabaseURL, supabaseKey);
 
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
-
 const totalTasks = document.getElementById("totalTasks");
 const completedTasks = document.getElementById("completedTasks");
 const remainingTasks = document.getElementById("remainingTasks");
 const emptyMessage = document.getElementById("emptyMessage");
 
 let tasks = [];
-// Display all tasks
-<<<<<<< HEAD
 
-=======
+// GET TASKS
+
+async function getTodo() {
+    const { data, error } = await supabaseClient
+        .from("todoapp")
+        .select("*");
+
+    if (error) {
+        console.log("There is an error:", error);
+        return;
+    }
+
+    tasks = data;
+    displayTasks();
+}
+
+getTodo();
+
+// DISPLAY TASKS
+
 function displayTasks() {
     taskList.innerHTML = "";
+
     tasks.forEach((task, index) => {
+
         const li = document.createElement("li");
+
         li.className = "task";
 
-        if (task.completed) {
+        if (task.iscompleted) {
             li.classList.add("completed");
         }
 
         li.innerHTML = `
-             <span class="task-text">${task.text}</span>
- 
-             <div class="task-buttons">
-                 <button class="complete-btn" onclick="completeTask(${index})">
-                     ${task.completed ? "Undo" : "Done"}
-                 </button>
- 
-                 <button class="edit-btn" onclick="editTask(${index})">
-                     Edit
-                 </button>
- 
-                 <button class="delete-btn" onclick="deleteTask(${index})">
-                     Delete
-                 </button>
-             </div>
-         `;
+            <span class="task-text">${task.text}</span>
+
+            <div class="task-buttons">
+
+                <button class="complete-btn" onclick="completeTask(${index})">
+                    ${task.iscompleted ? "Undo" : "Done"}
+                </button>
+
+                <button class="edit-btn" onclick="editTask(${index})">
+                    Edit
+                </button>
+
+                <button class="delete-btn" onclick="deleteTask(${index})">
+                    Delete
+                </button>
+
+            </div>
+        `;
 
         taskList.appendChild(li);
     });
 
     updateStats();
+
     emptyMessage.style.display =
         tasks.length === 0 ? "block" : "none";
 }
->>>>>>> 8249c59e61ea154801cf0b5ff7d69577959ffe91
+
 // ADD TASK
+
 async function addTask() {
+
     const text = taskInput.value.trim();
 
     if (text === "") {
@@ -77,113 +104,90 @@ async function addTask() {
 
     taskInput.value = "";
 
-    displayTasks();
+    getTodo();
 }
-
-<<<<<<< HEAD
-async function getTodo() {
-    const { data, error } = await supabaseClient
-        .from('todoapp')
-        .select('*');
-    if (error) {
-        console.log('there is an error', error);
-    }
-
-    tasks = data;
-    displayTasks();
-}
-getTodo();
-
-function displayTasks() {
-    taskList.innerHTML = "";
-
-    tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.className = "task";
-
-        if (task.iscompleted) {
-            li.classList.add("completed");
-        }
-
-        li.innerHTML = `
-            <span class="task-text">${task.text}</span>
-
-            <div class="task-buttons">
-                <button class="complete-btn" onclick="completeTask(${index})">
-                    ${task.iscompleted ? "Undo" : "Done"}
-                </button>
-
-                <button class="edit-btn" onclick="editTask(${index})">
-                    Edit
-                </button>
-
-                <button class="delete-btn" onclick="deleteTask(${index})">
-                    Delete
-                </button>
-            </div>
-        `;
-        taskList.appendChild(li);
-    });
-
-    updateStats();
-
-    emptyMessage.style.display =
-        tasks.length === 0 ? "block" : "none";
-}
-
-    updateStats();
-    emptyMessage.style.display =
-        tasks.length === 0 ? "block" : "none";
-
-
-=======
->>>>>>> 8249c59e61ea154801cf0b5ff7d69577959ffe91
 
 // COMPLETE / UNDO TASK
-function completeTask(index) {
-    tasks[index].completed = !tasks[index].completed;
 
-    displayTasks();
+async function completeTask(index) {
+
+    const task = tasks[index];
+
+    const { error } = await supabaseClient
+        .from("todoapp")
+        .update({
+            iscompleted: !task.iscompleted
+        })
+        .eq("id", task.id);
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    getTodo();
 }
 
-
 // EDIT TASK
-function editTask(index) {
-    const newText = prompt("Edit your task:", tasks[index].text);
+
+async function editTask(index) {
+
+    const newText = prompt(
+        "Edit your task:",
+        tasks[index].text
+    );
 
     if (newText !== null && newText.trim() !== "") {
-        tasks[index].text = newText.trim();
 
-        displayTasks();
+        const { error } = await supabaseClient
+            .from("todoapp")
+            .update({
+                text: newText.trim()
+            })
+            .eq("id", tasks[index].id);
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        getTodo();
     }
 }
 
-
 // DELETE TASK
-function deleteTask(index) {
+
+async function deleteTask(index) {
+
     const confirmDelete = confirm(
         "Are you sure you want to delete this task?"
     );
 
     if (confirmDelete) {
-        tasks.splice(index, 1);
 
-        displayTasks();
+        const { error } = await supabaseClient
+            .from("todoapp")
+            .delete()
+            .eq("id", tasks[index].id);
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        getTodo();
     }
 }
 
-
 // UPDATE TASK COUNTERS
+
 function updateStats() {
+
     const total = tasks.length;
 
-<<<<<<< HEAD
     const completed = tasks.filter(
         task => task.iscompleted
     ).length;
-=======
-    const completed = tasks.filter(task => task.completed).length;
->>>>>>> 8249c59e61ea154801cf0b5ff7d69577959ffe91
 
     const remaining = total - completed;
 
@@ -192,22 +196,16 @@ function updateStats() {
     remainingTasks.textContent = remaining;
 }
 
-
 // ADD BUTTON
+
 addBtn.addEventListener("click", addTask);
 
-
 // ADD TASK WITH ENTER KEY
+
 taskInput.addEventListener("keypress", function (event) {
+
     if (event.key === "Enter") {
         addTask();
     }
+
 });
-
-
-// SHOW TASKS WHEN PAGE LOADS
-<<<<<<< HEAD
-displayTasks();
-=======
-displayTasks();
->>>>>>> 8249c59e61ea154801cf0b5ff7d69577959ffe91
