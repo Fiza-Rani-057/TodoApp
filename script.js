@@ -14,7 +14,45 @@ const emptyMessage = document.getElementById("emptyMessage");
 
 let tasks = [];
 // Display all tasks
+<<<<<<< HEAD
 
+=======
+function displayTasks() {
+    taskList.innerHTML = "";
+    tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.className = "task";
+
+        if (task.completed) {
+            li.classList.add("completed");
+        }
+
+        li.innerHTML = `
+             <span class="task-text">${task.text}</span>
+ 
+             <div class="task-buttons">
+                 <button class="complete-btn" onclick="completeTask(${index})">
+                     ${task.completed ? "Undo" : "Done"}
+                 </button>
+ 
+                 <button class="edit-btn" onclick="editTask(${index})">
+                     Edit
+                 </button>
+ 
+                 <button class="delete-btn" onclick="deleteTask(${index})">
+                     Delete
+                 </button>
+             </div>
+         `;
+
+        taskList.appendChild(li);
+    });
+
+    updateStats();
+    emptyMessage.style.display =
+        tasks.length === 0 ? "block" : "none";
+}
+>>>>>>> 8249c59e61ea154801cf0b5ff7d69577959ffe91
 // ADD TASK
 async function addTask() {
     const text = taskInput.value.trim();
@@ -42,6 +80,7 @@ async function addTask() {
     displayTasks();
 }
 
+<<<<<<< HEAD
 async function getTodo() {
     const { data, error } = await supabaseClient
         .from('todoapp')
@@ -97,6 +136,8 @@ function displayTasks() {
         tasks.length === 0 ? "block" : "none";
 
 
+=======
+>>>>>>> 8249c59e61ea154801cf0b5ff7d69577959ffe91
 
 // COMPLETE / UNDO TASK
 function completeTask(index) {
@@ -136,9 +177,13 @@ function deleteTask(index) {
 function updateStats() {
     const total = tasks.length;
 
+<<<<<<< HEAD
     const completed = tasks.filter(
         task => task.iscompleted
     ).length;
+=======
+    const completed = tasks.filter(task => task.completed).length;
+>>>>>>> 8249c59e61ea154801cf0b5ff7d69577959ffe91
 
     const remaining = total - completed;
 
@@ -161,4 +206,8 @@ taskInput.addEventListener("keypress", function (event) {
 
 
 // SHOW TASKS WHEN PAGE LOADS
+<<<<<<< HEAD
 displayTasks();
+=======
+displayTasks();
+>>>>>>> 8249c59e61ea154801cf0b5ff7d69577959ffe91
